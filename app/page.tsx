@@ -1,65 +1,117 @@
-import Image from "next/image";
+'use client'
+
+import { useEffect, useState } from 'react'
+import { QfxUpload } from '@/components/QfxUpload'
+import { TransactionTable } from '@/components/TransactionTable'
+import { BudgetTab } from '@/components/BudgetTab'
+import { RulesTab } from '@/components/RulesTab'
+import type { AccountConfig } from '@/config/accounts'
+
+function currentMonth() {
+  return new Date().toISOString().slice(0, 7)
+}
 
 export default function Home() {
+  const [accounts,        setAccounts]        = useState<AccountConfig[]>([])
+  const [acctId,          setAcctId]          = useState<string | null>(null)
+  const [month,           setMonth]           = useState(currentMonth())
+  const [tab,             setTab]             = useState<'import' | 'transactions' | 'budget' | 'rules'>('import')
+  const [filterCategory,  setFilterCategory]  = useState<string | null>(null)
+
+  async function loadAccounts() {
+    const res = await fetch('/api/accounts')
+    const data: AccountConfig[] = await res.json()
+    setAccounts(data)
+    if (data.length && !acctId) setAcctId(data[0].acctId)
+  }
+
+  useEffect(() => { loadAccounts() }, [])   // eslint-disable-line react-hooks/exhaustive-deps
+
+  function drillIntoCategory(category: string) {
+    setFilterCategory(category)
+    setTab('transactions')
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b px-6 py-4 flex items-center gap-4">
+        <h1 className="text-xl font-bold text-gray-800">💰 Dune Budget</h1>
+
+        <select
+          value={acctId ?? ''}
+          onChange={(e) => setAcctId(e.target.value || null)}
+          className="ml-4 border rounded-lg px-3 py-1.5 text-sm"
+        >
+          <option value="">All accounts</option>
+          {accounts.map((a) => (
+            <option key={a.acctId} value={a.acctId}>
+              {a.nickname ?? a.acctId} ({a.acctType})
+            </option>
+          ))}
+        </select>
+
+        <input
+          type="month"
+          value={month}
+          onChange={(e) => setMonth(e.target.value)}
+          className="border rounded-lg px-3 py-1.5 text-sm"
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+
+        <nav className="ml-auto flex gap-2">
+          {(['import', 'transactions', 'budget', 'rules'] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                tab === t ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-100'
+              }`}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+              {t === 'import' ? '⬆ Import' : t === 'transactions' ? '📋 Transactions' : t === 'budget' ? '📊 Budget' : '⚡ Rules'}
+            </button>
+          ))}
+        </nav>
+      </header>
+
+      {/* Body */}
+      <div className="max-w-5xl mx-auto px-6 py-8">
+        {tab === 'import' && (
+          <div className="max-w-xl mx-auto">
+            <h2 className="text-lg font-semibold text-gray-700 mb-4">Import QFX file</h2>
+            <QfxUpload onSuccess={() => { loadAccounts(); setTab('transactions') }} />
+          </div>
+        )}
+
+        {tab === 'transactions' && (
+          <div>
+            <h2 className="text-lg font-semibold text-gray-700 mb-4">
+              Transactions — {month}
+            </h2>
+            <TransactionTable
+              month={month}
+              acctId={acctId}
+              filterCategory={filterCategory}
+              onClearCategory={() => setFilterCategory(null)}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+          </div>
+        )}
+
+        {tab === 'budget' && (
+          <div>
+            <h2 className="text-lg font-semibold text-gray-700 mb-4">
+              Budget — {month}
+            </h2>
+            <BudgetTab month={month} acctId={acctId} onCategoryClick={drillIntoCategory} />
+          </div>
+        )}
+
+        {tab === 'rules' && (
+          <div>
+            <h2 className="text-lg font-semibold text-gray-700 mb-4">Auto-categorization rules</h2>
+            <RulesTab month={month} />
+          </div>
+        )}
+      </div>
+    </main>
+  )
 }
