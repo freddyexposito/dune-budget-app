@@ -5,8 +5,8 @@ import type { Rule } from '@/db/schema'
 
 const CATEGORIES = [
   'Groceries', 'Dining', 'Transport', 'Housing', 'Utilities',
-  'Health', 'Shopping', 'Entertainment', 'Gym', 'Vacation',
-  'Cuba', 'Kids', 'Subscriptions', 'Fun', 'Payment', 'Other',
+  'Health', 'Shopping', 'Gym', 'Vacation',
+  'Cuba', 'Kids', 'Subscriptions', 'Fun', 'Nico Therapy', 'Payment', 'Other',
 ]
 
 interface Props {

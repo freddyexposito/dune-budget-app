@@ -10,16 +10,15 @@ const CATEGORY_COLORS: Record<string, string> = {
   Dining:        'bg-orange-100  text-orange-700',
   Transport:     'bg-blue-100    text-blue-700',
   Housing:       'bg-purple-100  text-purple-700',
-  Utilities:     'bg-yellow-100  text-yellow-700',
   Health:        'bg-pink-100    text-pink-700',
   Shopping:      'bg-indigo-100  text-indigo-700',
-  Entertainment: 'bg-rose-100    text-rose-700',
   Gym:           'bg-teal-100    text-teal-700',
   Vacation:      'bg-sky-100     text-sky-700',
   Cuba:          'bg-amber-100   text-amber-700',
   Kids:          'bg-lime-100    text-lime-700',
   Subscriptions: 'bg-violet-100  text-violet-700',
   Fun:           'bg-fuchsia-100 text-fuchsia-700',
+  'Nico Therapy': 'bg-cyan-100    text-cyan-700',
   Other:         'bg-slate-100   text-slate-600',
 }
 

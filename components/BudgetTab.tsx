@@ -22,9 +22,11 @@ interface Props {
 
 const CATEGORIES = [
   'Groceries', 'Dining', 'Transport', 'Housing', 'Utilities',
-  'Health', 'Shopping', 'Entertainment', 'Gym', 'Vacation',
+  'Health', 'Shopping', 'Vacation',
   'Cuba', 'Kids', 'Subscriptions', 'Fun', 'Other',
 ]
+
+const FIXED_CATEGORIES = ['Gym', 'Nico Therapy']
 
 function ProgressBar({ spent, limit }: { spent: number; limit: number }) {
   const pct  = limit > 0 ? Math.min((spent / limit) * 100, 100) : 0
@@ -72,6 +74,19 @@ function PaceBanner({
   const over         = diff > 0
   const pctOfBudget  = Math.round(actualPct * 100)
   const expectedPctR = Math.round(expectedPct * 100)
+  const spentRatio   = totalSpent / totalLimit
+  const barColor     = spentRatio >= 1   ? 'bg-red-400'
+                     : spentRatio >= 0.8 ? 'bg-orange-400'
+                     : spentRatio >= 0.5 ? 'bg-yellow-400'
+                     : 'bg-emerald-400'
+  const textColor    = spentRatio >= 1   ? 'text-red-600'
+                     : spentRatio >= 0.8 ? 'text-orange-600'
+                     : spentRatio >= 0.5 ? 'text-yellow-600'
+                     : 'text-emerald-600'
+  const dotColor     = spentRatio >= 1   ? 'bg-red-400'
+                     : spentRatio >= 0.8 ? 'bg-orange-400'
+                     : spentRatio >= 0.5 ? 'bg-yellow-400'
+                     : 'bg-emerald-400'
 
   return (
     <div className="bg-white rounded-xl border p-5 space-y-3">
@@ -82,7 +97,7 @@ function PaceBanner({
             Day {dayOfMonth} of {daysInMonth}
           </span>
         </span>
-        <span className={`font-semibold text-sm ${over ? 'text-red-600' : 'text-emerald-600'}`}>
+        <span className={`font-semibold text-sm ${textColor}`}>
           {over ? '▲' : '▼'} ${Math.abs(diff).toFixed(2)} {over ? 'over pace' : 'under pace'}
         </span>
       </div>
@@ -91,7 +106,7 @@ function PaceBanner({
       <div className="relative h-5 bg-gray-100 rounded-full overflow-visible">
         {/* Actual spend fill */}
         <div
-          className={`absolute inset-y-0 left-0 rounded-full transition-all ${over ? 'bg-red-400' : 'bg-emerald-400'}`}
+          className={`absolute inset-y-0 left-0 rounded-full transition-all ${barColor}`}
           style={{ width: `${pctOfBudget}%` }}
         />
         {/* "Expected by today" tick mark */}
@@ -110,7 +125,7 @@ function PaceBanner({
         <span>$0</span>
         <span className="flex items-center gap-4">
           <span className="flex items-center gap-1">
-            <span className={`w-2.5 h-2.5 rounded-full inline-block ${over ? 'bg-red-400' : 'bg-emerald-400'}`} />
+            <span className={`w-2.5 h-2.5 rounded-full inline-block ${dotColor}`} />
             Spent {pctOfBudget}% — <span className="font-medium text-gray-600">${totalSpent.toFixed(2)}</span>
           </span>
           <span className="flex items-center gap-1">
@@ -220,15 +235,28 @@ export function BudgetTab({ month, acctId, onCategoryClick }: Props) {
     ...summary.filter((r) => r.category).map((r) => r.category as string),
   ])
 
-  const rows: BudgetRow[] = [...activeSet].sort().map((cat) => ({
+  const fixedSet = new Set(FIXED_CATEGORIES)
+
+  const rows: BudgetRow[] = [...activeSet]
+    .filter((cat) => !fixedSet.has(cat))
+    .sort()
+    .map((cat) => ({
+      ...(limitMap[cat] ?? { id: 0, month, category: cat, limitAmount: 0 }),
+      spent: spentMap[cat]?.spent ?? 0,
+      count: spentMap[cat]?.count ?? 0,
+    }))
+
+  const fixedRows: BudgetRow[] = FIXED_CATEGORIES.map((cat) => ({
     ...(limitMap[cat] ?? { id: 0, month, category: cat, limitAmount: 0 }),
     spent: spentMap[cat]?.spent ?? 0,
     count: spentMap[cat]?.count ?? 0,
   }))
 
-  const uncategorized = spentMap['']
-  const totalSpent    = rows.reduce((s, r) => s + r.spent, 0)
-  const totalLimit    = rows.reduce((s, r) => s + r.limitAmount, 0)
+  const uncategorized   = spentMap['']
+  const totalSpent      = rows.reduce((s, r) => s + r.spent, 0)
+  const totalLimit      = rows.reduce((s, r) => s + r.limitAmount, 0)
+  const fixedSpent      = fixedRows.reduce((s, r) => s + r.spent, 0)
+  const grandTotalSpent = totalSpent + fixedSpent
 
   return (
     <div className="space-y-6">
@@ -404,6 +432,48 @@ export function BudgetTab({ month, acctId, onCategoryClick }: Props) {
           ⚠ {uncategorized.count} transaction{uncategorized.count > 1 ? 's' : ''} (${uncategorized.spent.toFixed(2)}) are uncategorized — assign categories in the Transactions tab.
         </p>
       )}
+
+      {/* Fixed / excluded categories */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Fixed costs</h3>
+          <span className="text-xs text-gray-400">not tracked in budget</span>
+        </div>
+
+        <div className="bg-white rounded-xl border overflow-hidden">
+          <table className="min-w-full text-sm">
+            <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
+              <tr>
+                <th className="px-4 py-2 text-left">Category</th>
+                <th className="px-4 py-2 text-right">Spent</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {fixedRows.map((r) => (
+                <tr key={r.category} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 font-medium text-gray-600">{r.category}</td>
+                  <td className="px-4 py-2 text-right tabular-nums">
+                    {r.spent > 0 ? (
+                      <button
+                        onClick={() => onCategoryClick(r.category)}
+                        className="text-red-600 hover:underline hover:text-red-700 tabular-nums"
+                      >
+                        ${r.spent.toFixed(2)}
+                      </button>
+                    ) : (
+                      <span className="text-gray-300">$0.00</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              <tr className="bg-gray-50 font-semibold text-gray-700">
+                <td className="px-4 py-2">Total incl. fixed</td>
+                <td className="px-4 py-2 text-right tabular-nums">${grandTotalSpent.toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   )
 }
