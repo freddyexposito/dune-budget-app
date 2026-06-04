@@ -33,6 +33,26 @@ export const budgets = sqliteTable('budgets', {
   uniq: unique().on(t.month, t.category),
 }))
 
-export type Transaction = typeof transactions.$inferSelect
-export type Budget      = typeof budgets.$inferSelect
-export type Rule        = typeof rules.$inferSelect
+export const debtSnapshots = sqliteTable('debt_snapshots', {
+  id:        integer('id').primaryKey({ autoIncrement: true }),
+  accountId: text('account_id').notNull(),
+  month:     text('month').notNull(),
+  balance:   real('balance').notNull(),
+}, (t) => ({
+  uniq: unique().on(t.accountId, t.month),
+}))
+
+export const wealthSnapshots = sqliteTable('wealth_snapshots', {
+  id:        integer('id').primaryKey({ autoIncrement: true }),
+  accountId: text('account_id').notNull(),
+  month:     text('month').notNull(),       // "YYYY-MM"
+  balance:   real('balance').notNull(),
+}, (t) => ({
+  uniq: unique().on(t.accountId, t.month),
+}))
+
+export type Transaction     = typeof transactions.$inferSelect
+export type Budget          = typeof budgets.$inferSelect
+export type Rule            = typeof rules.$inferSelect
+export type WealthSnapshot  = typeof wealthSnapshots.$inferSelect
+export type DebtSnapshot    = typeof debtSnapshots.$inferSelect

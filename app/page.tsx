@@ -5,6 +5,8 @@ import { QfxUpload } from '@/components/QfxUpload'
 import { TransactionTable } from '@/components/TransactionTable'
 import { BudgetTab } from '@/components/BudgetTab'
 import { RulesTab } from '@/components/RulesTab'
+import { WealthTab } from '@/components/WealthTab'
+import { DebtTab } from '@/components/DebtTab'
 import type { AccountConfig } from '@/config/accounts'
 
 function currentMonth() {
@@ -15,7 +17,7 @@ export default function Home() {
   const [accounts,        setAccounts]        = useState<AccountConfig[]>([])
   const [acctId,          setAcctId]          = useState<string | null>(null)
   const [month,           setMonth]           = useState(currentMonth())
-  const [tab,             setTab]             = useState<'import' | 'transactions' | 'budget' | 'rules'>('import')
+  const [tab,             setTab]             = useState<'import' | 'transactions' | 'budget' | 'rules' | 'wealth' | 'debt'>('budget')
   const [filterCategory,  setFilterCategory]  = useState<string | null>(null)
 
   async function loadAccounts() {
@@ -59,7 +61,7 @@ export default function Home() {
         />
 
         <nav className="ml-auto flex gap-2">
-          {(['import', 'transactions', 'budget', 'rules'] as const).map((t) => (
+          {(['budget', 'transactions', 'import', 'rules', 'wealth', 'debt'] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -67,7 +69,7 @@ export default function Home() {
                 tab === t ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-100'
               }`}
             >
-              {t === 'import' ? '⬆ Import' : t === 'transactions' ? '📋 Transactions' : t === 'budget' ? '📊 Budget' : '⚡ Rules'}
+              {t === 'import' ? '⬆ Import' : t === 'transactions' ? '📋 Transactions' : t === 'budget' ? '📊 Budget' : t === 'rules' ? '⚡ Rules' : t === 'wealth' ? '💎 Wealth' : '🏠 Debt'}
             </button>
           ))}
         </nav>
@@ -109,6 +111,20 @@ export default function Home() {
           <div>
             <h2 className="text-lg font-semibold text-gray-700 mb-4">Auto-categorization rules</h2>
             <RulesTab month={month} />
+          </div>
+        )}
+
+        {tab === 'wealth' && (
+          <div>
+            <h2 className="text-lg font-semibold text-gray-700 mb-4">Wealth — {month}</h2>
+            <WealthTab month={month} />
+          </div>
+        )}
+
+        {tab === 'debt' && (
+          <div>
+            <h2 className="text-lg font-semibold text-gray-700 mb-4">Debt — {month}</h2>
+            <DebtTab month={month} />
           </div>
         )}
       </div>
