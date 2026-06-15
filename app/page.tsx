@@ -40,18 +40,20 @@ export default function Home() {
       <header className="bg-white border-b px-6 py-4 flex items-center gap-4">
         <h1 className="text-xl font-bold text-gray-800">💰 Dune Budget</h1>
 
-        <select
-          value={acctId ?? ''}
-          onChange={(e) => setAcctId(e.target.value || null)}
-          className="ml-4 border rounded-lg px-3 py-1.5 text-sm"
-        >
-          <option value="">All accounts</option>
-          {accounts.map((a) => (
-            <option key={a.acctId} value={a.acctId}>
-              {a.nickname ?? a.acctId} ({a.acctType})
-            </option>
-          ))}
-        </select>
+        {tab === 'transactions' && (
+          <select
+            value={acctId ?? ''}
+            onChange={(e) => setAcctId(e.target.value || null)}
+            className="ml-4 border rounded-lg px-3 py-1.5 text-sm"
+          >
+            <option value="">All accounts</option>
+            {accounts.map((a) => (
+              <option key={a.acctId} value={a.acctId}>
+                {a.nickname ?? a.acctId} ({a.acctType})
+              </option>
+            ))}
+          </select>
+        )}
 
         <input
           type="month"
@@ -103,7 +105,7 @@ export default function Home() {
             <h2 className="text-lg font-semibold text-gray-700 mb-4">
               Budget — {month}
             </h2>
-            <BudgetTab month={month} acctId={acctId} onCategoryClick={drillIntoCategory} />
+            <BudgetTab month={month} onCategoryClick={drillIntoCategory} />
           </div>
         )}
 

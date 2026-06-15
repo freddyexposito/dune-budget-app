@@ -41,8 +41,14 @@ Three files need to be updated:
 
 Keep the names identical across all three files.
 
-## Deploy on Vercel
+## Deploying updates
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This app runs self-hosted on a home Linux box (via pm2 + ngrok), not on Vercel — the SQLite database lives only on that machine.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+To push out a code update, SSH into the box and run:
+
+```bash
+~/dune-budget-app/deploy.sh
+```
+
+This pulls the latest code from GitHub, installs dependencies, builds, and restarts the app via pm2.

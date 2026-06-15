@@ -16,7 +16,6 @@ interface BudgetRow extends Budget {
 
 interface Props {
   month:           string
-  acctId:          string | null
   onCategoryClick: (category: string) => void
 }
 
@@ -139,7 +138,7 @@ function PaceBanner({
   )
 }
 
-export function BudgetTab({ month, acctId, onCategoryClick }: Props) {
+export function BudgetTab({ month, onCategoryClick }: Props) {
   const [budgets,  setBudgets]  = useState<Budget[]>([])
   const [summary,  setSummary]  = useState<SummaryRow[]>([])
   const [editing,    setEditing]    = useState<Record<string, string>>({})  // category → input value
@@ -151,19 +150,16 @@ export function BudgetTab({ month, acctId, onCategoryClick }: Props) {
 
   async function load() {
     setLoading(true)
-    const params = new URLSearchParams({ month })
-    if (acctId) params.set('acctId', acctId)
-
     const [bRes, sRes] = await Promise.all([
       fetch(`/api/budgets?month=${month}`),
-      fetch(`/api/summary?${params}`),
+      fetch(`/api/summary?month=${month}`),
     ])
     setBudgets(await bRes.json())
     setSummary(await sRes.json())
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [month, acctId])  // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { load() }, [month])  // eslint-disable-line react-hooks/exhaustive-deps
 
   async function saveBudget(category: string, value: string) {
     const limitAmount = parseFloat(value)
