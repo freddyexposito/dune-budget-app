@@ -27,7 +27,19 @@ export const ACCOUNTS: AccountConfig[] = [
   },
   {
     acctId:   '4512238611058628',
-    nickname: 'Visa Freddy',
+    nickname: 'Visa Cuba',
+    acctType: 'CREDITCARD',
+    currency: 'CAD',
+  },
+  {
+    acctId:   '4514010354345829',
+    nickname: 'Avion Freddy',
+    acctType: 'CREDITCARD',
+    currency: 'CAD',
+  },
+  {
+    acctId:   '5415904118757609',
+    nickname: 'CashBack Freddy',
     acctType: 'CREDITCARD',
     currency: 'CAD',
   },
