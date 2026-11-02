@@ -43,6 +43,12 @@ export const ACCOUNTS: AccountConfig[] = [
     acctType: 'CREDITCARD',
     currency: 'CAD',
   },
+  {
+    acctId:   '5298100123665372',
+    nickname: 'CashBack Yirina',
+    acctType: 'CREDITCARD',
+    currency: 'CAD',
+  },
   // add more accounts here as needed
 ]
 
