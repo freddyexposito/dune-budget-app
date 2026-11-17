@@ -132,7 +132,7 @@ export default function SummaryPage() {
   }, [month])
 
   // ── Budget totals ────────────────────────────────────────────────────────────
-  const FIXED = new Set(['Gym', 'Nico Therapy'])
+  const FIXED = new Set(['Gym', 'Nico Therapy', 'Orthodontics'])
   const totalSpent  = budgets.filter((b) => !FIXED.has(b.category)).reduce((s, b) => s + (spentMap[b.category] ?? 0), 0)
   const totalLimit  = budgets.filter((b) => !FIXED.has(b.category)).reduce((s, b) => s + b.limitAmount, 0)
   const remaining   = totalLimit - totalSpent

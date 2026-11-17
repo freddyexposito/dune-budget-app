@@ -25,7 +25,7 @@ const CATEGORIES = [
   'Cuba', 'Kids', 'Subscriptions', 'Fun', 'Other',
 ]
 
-const FIXED_CATEGORIES = ['Gym', 'Nico Therapy']
+const FIXED_CATEGORIES = ['Gym', 'Nico Therapy', 'Orthodontics']
 
 function ProgressBar({ spent, limit }: { spent: number; limit: number }) {
   const pct  = limit > 0 ? Math.min((spent / limit) * 100, 100) : 0

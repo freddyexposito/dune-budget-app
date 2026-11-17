@@ -19,6 +19,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   Subscriptions: 'bg-violet-100  text-violet-700',
   Fun:           'bg-fuchsia-100 text-fuchsia-700',
   'Nico Therapy': 'bg-cyan-100    text-cyan-700',
+  Orthodontics:  'bg-rose-100    text-rose-700',
   Other:         'bg-slate-100   text-slate-600',
 }
 
